@@ -4,8 +4,8 @@ from os import path
 from os.path import sep
 
 from tests.base_client_it import BaseClientTestCase
-from webdav3.client import Resource
-from webdav3.urn import Urn
+from aiowebdav.client import Resource
+from aiowebdav.urn import Urn
 
 
 class ResourceTestCase(BaseClientTestCase):

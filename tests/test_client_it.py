@@ -6,8 +6,8 @@ from os import path
 from time import sleep
 
 from tests.base_client_it import BaseClientTestCase
-from webdav3.client import Client
-from webdav3.exceptions import MethodNotSupported, OptionNotValid, RemoteResourceNotFound
+from aiowebdav.client import Client
+from aiowebdav.exceptions import MethodNotSupported, OptionNotValid, RemoteResourceNotFound
 
 
 class ClientTestCase(BaseClientTestCase):

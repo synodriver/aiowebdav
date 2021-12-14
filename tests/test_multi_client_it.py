@@ -1,7 +1,7 @@
 import unittest
 
 from tests.test_client_it import ClientTestCase
-from webdav3.client import Client
+from aiowebdav.client import Client
 
 
 class MultiClientTestCase(ClientTestCase):

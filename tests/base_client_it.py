@@ -5,7 +5,7 @@ import sys
 import unittest
 from os import path
 
-from webdav3.client import Client
+from aiowebdav.client import Client
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)

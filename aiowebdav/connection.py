@@ -1,7 +1,9 @@
 from os.path import exists
 
-from webdav3.exceptions import *
-from webdav3.urn import Urn
+import aiohttp
+
+from aiowebdav.exceptions import *
+from aiowebdav.urn import Urn
 
 
 class ConnectionSettings:
@@ -24,26 +26,25 @@ class ConnectionSettings:
 class WebDAVSettings(ConnectionSettings):
     ns = "webdav:"
     prefix = "webdav_"
-    keys = {'hostname', 'login', 'password', 'token', 'root', 'cert_path', 'key_path', 'recv_speed', 'send_speed',
+    keys = {'hostname', 'login', 'password', 'token', 'root', 'ssl', 'recv_speed', 'send_speed',
             'verbose', 'disable_check', 'override_methods', 'timeout', 'chunk_size'}
 
-    def __init__(self, options):
+    def __init__(self, options: dict):
         self.hostname = None
         self.login = None
         self.password = None
         self.token = None
         self.root = None
-        self.cert_path = None
-        self.key_path = None
+        self.ssl = None
         self.recv_speed = None
         self.send_speed = None
         self.verbose = None
         self.disable_check = False
         self.override_methods = {}
-        self.timeout = 30
+        self.timeout = aiohttp.ClientTimeout(total=30)
         self.chunk_size = 65536
 
-        self.options = dict()
+        self.options = {}
 
         for key in self.keys:
             value = options.get(key, '')
@@ -54,6 +55,7 @@ class WebDAVSettings(ConnectionSettings):
         self.root = Urn(self.root).quote() if self.root else ''
         self.root = self.root.rstrip(Urn.separate)
         self.hostname = self.hostname.rstrip(Urn.separate)
+        self.ssl = None if not self.ssl else self.ssl
 
     def is_valid(self):
         if not self.hostname:

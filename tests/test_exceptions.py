@@ -1,6 +1,6 @@
 import unittest
 
-from webdav3.exceptions import OptionNotValid, LocalResourceNotFound, RemoteResourceNotFound, MethodNotSupported, ConnectionException, NoConnection, \
+from aiowebdav.exceptions import OptionNotValid, LocalResourceNotFound, RemoteResourceNotFound, MethodNotSupported, ConnectionException, NoConnection, \
     RemoteParentNotFound, NotConnection, ResponseErrorCode, NotEnoughSpace
 
 

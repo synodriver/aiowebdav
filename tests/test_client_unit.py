@@ -5,8 +5,8 @@ from unittest.mock import patch, Mock, PropertyMock
 
 from lxml.etree import ElementTree, Element
 
-from webdav3.client import WebDavXmlUtils as Utils, listdir, MethodNotSupported, RemoteResourceNotFound, Client
-from webdav3.exceptions import ResponseErrorCode, NotEnoughSpace
+from aiowebdav.client import WebDavXmlUtils as Utils, listdir, MethodNotSupported, RemoteResourceNotFound, Client
+from aiowebdav.exceptions import ResponseErrorCode, NotEnoughSpace
 
 
 def read_file_content(file_name):
