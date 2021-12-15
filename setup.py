@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install as InstallCommand
 from setuptools.command.test import test as TestCommand
 
-version = "3.14.6"
+version = "0.1.0"
 requirements = "libxml2-dev libxslt-dev python-dev"
 
 
@@ -47,19 +47,20 @@ setup(
     name='aiowebdav',
     version=version,
     packages=find_packages(exclude=('tests',)),
-    requires=['python (>= 3.3.0)'],
+    requires=['python (>= 3.8.0)'],
     install_requires=['aiohttp', 'lxml', 'python-dateutil'],
+    python_requires=">=3.8",
     scripts=['wdc'],
     test_suite='tests',
     tests_require=['pytest'],
     cmdclass={'install': Install, 'test': Test},
-    description='WebDAV client, based on original package https://github.com/ezhov-evgeny/webdav-client-python-3 but '
+    description='Asyncio WebDAV client, based on original package https://github.com/ezhov-evgeny/webdav-client-python-3 but '
                 'uses aiohttp instead of requests',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Evgeny Ezhov',
-    author_email='ezhov.evgeny@gmail.com',
-    url='https://github.com/ezhov-evgeny/webdav-client-python-3',
+    author='synodriver',
+    author_email='diguohuangjiajinweijun@gmail.com',
+    url='https://github.com/synodriver/aiowebdav',
     license='MIT License',
     keywords='webdav, client, python, module, library, packet, Yandex.Disk, Dropbox, Google Disk, Box, 4shared',
     classifiers=[

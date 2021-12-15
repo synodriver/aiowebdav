@@ -220,15 +220,16 @@ class Client(object):
         response = await self.session.request(
             method=self.requests[action],
             url=self.get_url(path),
-            auth=aiohttp.BasicAuth(self.webdav.login, self.webdav.password) if (
-                                                                                       not self.webdav.token and not self.session.auth)
-                                                                               and (
-                                                                                       self.webdav.login and self.webdav.password) else None,
+            auth=aiohttp.BasicAuth(self.webdav.login, self.webdav.password) if
+            (not self.webdav.token and not self.session.auth) and (
+                    self.webdav.login and self.webdav.password) else None,
             headers=self.get_headers(action, headers_ext),
             timeout=self.timeout,
             ssl=self.webdav.ssl,
             data=data,
-            verify_ssl=self.verify
+            verify_ssl=self.verify,
+            proxy=self.webdav.proxy,
+            proxy_auth=self.webdav.proxy_auth,
         )
         if response.status == 507:
             raise NotEnoughSpace()
@@ -987,8 +988,11 @@ class Resource(object):
     async def write_to(self, buff):
         return await self.client.download_from(buff=buff, remote_path=self.urn.path())
 
+    async def write(self, local_path):
+        return await self.client.download(local_path=local_path, remote_path=self.urn.path())
+
     async def publish(self):
-        return await  self.client.publish(self.urn.path())
+        return await self.client.publish(self.urn.path())
 
     async def unpublish(self):
         return await self.client.unpublish(self.urn.path())

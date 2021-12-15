@@ -1,3 +1,4 @@
+import ssl
 from os.path import exists
 
 import aiohttp
@@ -27,7 +28,7 @@ class WebDAVSettings(ConnectionSettings):
     ns = "webdav:"
     prefix = "webdav_"
     keys = {'hostname', 'login', 'password', 'token', 'root', 'ssl', 'recv_speed', 'send_speed',
-            'verbose', 'disable_check', 'override_methods', 'timeout', 'chunk_size'}
+            'verbose', 'disable_check', 'override_methods', 'timeout', 'chunk_size', 'proxy', 'proxy_auth'}
 
     def __init__(self, options: dict):
         self.hostname = None
@@ -35,7 +36,7 @@ class WebDAVSettings(ConnectionSettings):
         self.password = None
         self.token = None
         self.root = None
-        self.ssl = None
+        self.ssl = None  # type: ssl.SSLContext
         self.recv_speed = None
         self.send_speed = None
         self.verbose = None
@@ -43,6 +44,8 @@ class WebDAVSettings(ConnectionSettings):
         self.override_methods = {}
         self.timeout = aiohttp.ClientTimeout(total=30)
         self.chunk_size = 65536
+        self.proxy = None
+        self.proxy_auth = None
 
         self.options = {}
 
@@ -56,6 +59,8 @@ class WebDAVSettings(ConnectionSettings):
         self.root = self.root.rstrip(Urn.separate)
         self.hostname = self.hostname.rstrip(Urn.separate)
         self.ssl = None if not self.ssl else self.ssl
+        if isinstance(self.timeout, (int, float)):
+            self.timeout = aiohttp.ClientTimeout(self.timeout)
 
     def is_valid(self):
         if not self.hostname:

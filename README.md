@@ -1,35 +1,38 @@
-Python WebDAV Client 3
+aiowebdav
 =========
 [![Build Status](https://travis-ci.com/ezhov-evgeny/webdav-client-python-3.svg?branch=develop)](https://travis-ci.com/ezhov-evgeny/webdav-client-python-3)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ezhov-evgeny_webdav-client-python-3&metric=alert_status)](https://sonarcloud.io/dashboard?id=ezhov-evgeny_webdav-client-python-3)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ezhov-evgeny_webdav-client-python-3&metric=coverage)](https://sonarcloud.io/dashboard?id=ezhov-evgeny_webdav-client-python-3)
 [![PyPI](https://img.shields.io/pypi/v/webdavclient3)](https://pypi.org/project/webdavclient3/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/webdavclient3)  
 
-Package webdavclient3 based on https://github.com/designerror/webdav-client-python but uses `requests` instead of `PyCURL`.
+Package aiowebdav based on https://github.com/designerror/webdav-client-python but uses `aiohttp` instead of `requests`.
 It provides easy way to work with WebDAV-servers.
 
 Installation
 ------------
 ```bash
-$ pip install webdavclient3
+$ pip install aiowebdav
 ```
 
 Sample Usage
 ------------
 
 ```python
+import asyncio
 from aiowebdav.client import Client
 
 options = {
  'webdav_hostname': "https://webdav.server.ru",
  'webdav_login': "login",
- 'webdav_password': "password"
+ 'webdav_password': "password",
+ "disable_check": True
 }
-client = Client(options)
-client.verify = False  # To not check SSL certificates (Default = True)
-client.session.proxies(...)  # To set proxy directly into the session (Optional)
-client.session.auth(...)  # To set proxy auth directly into the session (Optional)
-client.execute_request("mkdir", 'directory_name')
+
+async def main():
+    client = Client(options)
+    client.verify = False  # To not check SSL certificates (Default = True)
+    client.execute_request("mkdir", 'directory_name')
+asyncio.run(main())
 ```
 
 Webdav API
@@ -97,9 +100,8 @@ options = {
  'webdav_hostname': "https://webdav.server.ru",
  'webdav_login': "w_login",
  'webdav_password': "w_password",
- 'proxy_hostname': "http://127.0.0.1:8080",
- 'proxy_login': "p_login",
- 'proxy_password': "p_password"
+ 'webdav_proxy': "http://127.0.0.1:8080",
+ 'webdav_proxy_auth': "xxx",
 }
 client = Client(options)
 ```
@@ -113,8 +115,7 @@ options = {
  'webdav_hostname': "https://webdav.server.ru",
  'webdav_login': "w_login",
  'webdav_password': "w_password",
- 'cert_path': "/etc/ssl/certs/certificate.crt",
- 'key_path': "/etc/ssl/private/certificate.key"
+ 'webdav_ssl': 'sslcontext'
 }
 client = Client(options)
 ```
@@ -157,94 +158,94 @@ options = {
 client = Client(options)
 ```
 
-**Synchronous methods**
+**Asynchronous methods**
 
 ```python
 # Checking existence of the resource
 
-client.check("dir1/file1")
-client.check("dir1")
+await client.check("dir1/file1")
+await client.check("dir1")
 ```
 
 ```python
 # Get information about the resource
 
-client.info("dir1/file1")
-client.info("dir1/")
+await client.info("dir1/file1")
+await client.info("dir1/")
 ```
 
 ```python
 # Check free space
 
-free_size = client.free()
+free_size = await client.free()
 ```
 
 ```python
 # Get a list of resources
 
-files1 = client.list()
-files2 = client.list("dir1")
-files3 = client.list("dir1", get_info=True) # returns a list of dictionaries with files details
+files1 = await client.list()
+files2 = await client.list("dir1")
+files3 = await client.list("dir1", get_info=True) # returns a list of dictionaries with files details
 ```
 
 ```python
 # Create directory
 
-client.mkdir("dir1/dir2")
+await client.mkdir("dir1/dir2")
 ```
 
 ```python
 # Delete resource
 
-client.clean("dir1/dir2")
+await client.clean("dir1/dir2")
 ```
 
 ```python
 # Copy resource
 
-client.copy(remote_path_from="dir1/file1", remote_path_to="dir2/file1")
-client.copy(remote_path_from="dir2", remote_path_to="dir3")
+await client.copy(remote_path_from="dir1/file1", remote_path_to="dir2/file1")
+await client.copy(remote_path_from="dir2", remote_path_to="dir3")
 ```
 
 ```python
 # Move resource
 
-client.move(remote_path_from="dir1/file1", remote_path_to="dir2/file1")
-client.move(remote_path_from="dir2", remote_path_to="dir3")
+await client.move(remote_path_from="dir1/file1", remote_path_to="dir2/file1")
+await client.move(remote_path_from="dir2", remote_path_to="dir3")
 ```
 
 ```python
 # Download a resource
 
-client.download_sync(remote_path="dir1/file1", local_path="~/Downloads/file1")
-client.download_sync(remote_path="dir1/dir2/", local_path="~/Downloads/dir2/")
+await client.download(remote_path="dir1/file1", local_path="~/Downloads/file1")
+await client.download(remote_path="dir1/dir2/", local_path="~/Downloads/dir2/")
 ```
 
 ```python
 # Upload resource
 
-client.upload_sync(remote_path="dir1/file1", local_path="~/Documents/file1")
-client.upload_sync(remote_path="dir1/dir2/", local_path="~/Documents/dir2/")
+await client.upload(remote_path="dir1/file1", local_path="~/Documents/file1")
+await client.upload(remote_path="dir1/dir2/", local_path="~/Documents/dir2/")
 ```
 
 ```python
 # Publish the resource
 
-link = client.publish("dir1/file1")
-link = client.publish("dir2")
+link = await client.publish("dir1/file1")
+link = await client.publish("dir2")
 ```
 
 ```python
 # Unpublish resource
 
-client.unpublish("dir1/file1")
-client.unpublish("dir2")
+await client.unpublish("dir1/file1")
+await client.unpublish("dir2")
 ```
 
 ```python
 # Exception handling
 
-from aiowebdav.client import WebDavException
+from aiowebdav.exceptions import WebDavException
 
 try:
  ...
@@ -255,33 +256,13 @@ except WebDavException as exception:
 ```python
 # Get the missing files
 
-client.pull(remote_directory='dir1', local_directory='~/Documents/dir1')
+await client.pull(remote_directory='dir1', local_directory='~/Documents/dir1')
 ```
 
 ```python
 # Send missing files
 
-client.push(remote_directory='dir1', local_directory='~/Documents/dir1')
-```
-
-**Asynchronous methods**
-
-```python
-# Load resource
-
-kwargs = {
- 'remote_path': "dir1/file1",
- 'local_path':  "~/Downloads/file1",
- 'callback':    callback
-}
-client.download_async(**kwargs)
-
-kwargs = {
- 'remote_path': "dir1/dir2/",
- 'local_path':  "~/Downloads/dir2/",
- 'callback':    callback
-}
-client.download_async(**kwargs)
+await client.push(remote_directory='dir1', local_directory='~/Documents/dir1')
 ```
 
 ```python
@@ -316,16 +297,15 @@ res1 = client.resource("dir1/file1")
 ```python
 # Work with the resource
 
-res1.rename("file2")
-res1.move("dir1/file2")
-res1.copy("dir2/file1")
-info = res1.info()
-res1.read_from(buffer)
-res1.read(local_path="~/Documents/file1")
-res1.read_async(local_path="~/Documents/file1", callback)
-res1.write_to(buffer)
-res1.write(local_path="~/Downloads/file1")
-res1.write_async(local_path="~/Downloads/file1", callback)
+await res1.rename("file2")
+await res1.move("dir1/file2")
+await res1.copy("dir2/file1")
+info = await res1.info()
+await res1.read_from(buffer)
+await res1.read(local_path="~/Documents/file1")
+await res1.write_to(buffer)
+await res1.write(local_path="~/Downloads/file1")
+
 ```
 
 # For Contributors
