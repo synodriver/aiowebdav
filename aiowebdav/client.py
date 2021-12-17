@@ -276,10 +276,10 @@ class Client(object):
         path = Urn.normalize_path(self.get_full_path(directory_urn))
         response = await self.execute_request(action='list', path=directory_urn.quote())
         if get_info:
-            subfiles = WebDavXmlUtils.parse_get_list_info_response(await response.content.read())
+            subfiles = WebDavXmlUtils.parse_get_list_info_response(await response.read())
             return [subfile for subfile in subfiles if Urn.compare_path(path, subfile.get('path')) is False]
 
-        urns = WebDavXmlUtils.parse_get_list_response(await response.content.read())
+        urns = WebDavXmlUtils.parse_get_list_response(await response.read())
 
         return [urn.filename() for urn in urns if Urn.compare_path(path, urn.path()) is False]
 
@@ -292,7 +292,7 @@ class Client(object):
         """
         data = WebDavXmlUtils.create_free_space_request_content()
         response = await self.execute_request(action='free', path='', data=data)
-        return WebDavXmlUtils.parse_free_space_response(await response.content.read(), self.webdav.hostname)
+        return WebDavXmlUtils.parse_free_space_response(await response.read(), self.webdav.hostname)
 
     @wrap_connection_error
     async def check(self, remote_path=root):
@@ -345,7 +345,7 @@ class Client(object):
         """
 
         urn = Urn(remote_path)
-        if self.is_dir(urn.path()):
+        if await self.is_dir(urn.path()):
             raise OptionNotValid(name="remote_path", value=remote_path)
 
         if not await self.check(urn.path()):
@@ -373,7 +373,7 @@ class Client(object):
                 object or a Client instance in order to edit the message with the updated progress status.
         """
         urn = Urn(remote_path)
-        if self.is_dir(urn.path()):
+        if await self.is_dir(urn.path()):
             raise OptionNotValid(name="remote_path", value=remote_path)
 
         if not await self.check(urn.path()):
@@ -414,7 +414,7 @@ class Client(object):
                 object or a Client instance in order to edit the message with the updated progress status.
         """
         urn = Urn(remote_path)
-        if self.is_dir(urn.path()):
+        if await self.is_dir(urn.path()):
             await self.download_directory(local_path=local_path, remote_path=remote_path, progress=progress,
                                           progress_args=progress_args)
         else:
@@ -436,7 +436,7 @@ class Client(object):
                 object or a Client instance in order to edit the message with the updated progress status.
         """
         urn = Urn(remote_path, directory=True)
-        if not self.is_dir(urn.path()):
+        if not await self.is_dir(urn.path()):
             raise OptionNotValid(name="remote_path", value=remote_path)
 
         if os.path.exists(local_path):
@@ -444,7 +444,7 @@ class Client(object):
 
         os.makedirs(local_path)
 
-        for resource_name in self.list(urn.path()):
+        for resource_name in await self.list(urn.path()):
             if urn.path().endswith(resource_name):
                 continue
             _remote_path = "{parent}{name}".format(parent=urn.path(), name=resource_name)
@@ -470,7 +470,7 @@ class Client(object):
                 object or a Client instance in order to edit the message with the updated progress status.
         """
         urn = Urn(remote_path)
-        if self.is_dir(urn.path()):
+        if await self.is_dir(urn.path()):
             raise OptionNotValid(name="remote_path", value=remote_path)
 
         if os.path.isdir(local_path):
@@ -661,7 +661,7 @@ class Client(object):
         headers = [
             "Destination: {url}".format(url=self.get_url(urn_to.quote()))
         ]
-        if self.is_dir(urn_from.path()):
+        if await self.is_dir(urn_from.path()):
             headers.append("Depth: {depth}".format(depth=depth))
         await self.execute_request(action='copy', path=urn_from.quote(), headers_ext=headers)
 
@@ -717,7 +717,7 @@ class Client(object):
 
         response = await self.execute_request(action='info', path=urn.quote())
         path = self.get_full_path(urn)
-        return WebDavXmlUtils.parse_info_response(content=await response.content.read(), path=path,
+        return WebDavXmlUtils.parse_info_response(content=await response.read(), path=path,
                                                   hostname=self.webdav.hostname)
 
     async def _check_remote_resource(self, remote_path, urn):
@@ -737,7 +737,7 @@ class Client(object):
 
         response = await self.execute_request(action='info', path=urn.quote(), headers_ext=["Depth: 0"])
         path = self.get_full_path(urn)
-        return WebDavXmlUtils.parse_is_dir_response(content=await response.content.read(), path=path,
+        return WebDavXmlUtils.parse_is_dir_response(content=await response.read(), path=path,
                                                     hostname=self.webdav.hostname)
 
     @wrap_connection_error
@@ -757,7 +757,7 @@ class Client(object):
 
         data = WebDavXmlUtils.create_get_property_request_content(option)
         response = await self.execute_request(action='get_property', path=urn.quote(), data=data)
-        return WebDavXmlUtils.parse_get_property_response(await response.content.read(), option['name'])
+        return WebDavXmlUtils.parse_get_property_response(await response.read(), option['name'])
 
     @wrap_connection_error
     async def set_property(self, remote_path, option):
@@ -823,7 +823,7 @@ class Client(object):
 
         updated = False
         urn = Urn(remote_directory, directory=True)
-        self._validate_remote_directory(urn)
+        await self._validate_remote_directory(urn)
         self._validate_local_directory(local_directory)
 
         paths = await self.list(urn.path())
@@ -854,12 +854,12 @@ class Client(object):
 
         updated = False
         urn = Urn(remote_directory, directory=True)
-        self._validate_remote_directory(urn)
+        await self._validate_remote_directory(urn)
         self._validate_local_directory(local_directory)
 
         local_resource_names = listdir(local_directory)
 
-        paths = self.list(urn.path())
+        paths = await self.list(urn.path())
         expression = "{begin}{end}".format(begin="^", end=remote_directory)
         remote_resource_names = prune(paths, expression)
 
@@ -917,8 +917,8 @@ class Client(object):
     async def unpublish(self, path: str):
         await self.execute_request("unpublish", path)
 
-    def _validate_remote_directory(self, urn):
-        if not self.is_dir(urn.path()):
+    async def _validate_remote_directory(self, urn):
+        if not await self.is_dir(urn.path()):
             raise OptionNotValid(name="remote_path", value=urn.path())
 
     @staticmethod

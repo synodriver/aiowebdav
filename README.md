@@ -1,9 +1,10 @@
 aiowebdav
 =========
-[![Build Status](https://travis-ci.com/ezhov-evgeny/webdav-client-python-3.svg?branch=develop)](https://travis-ci.com/ezhov-evgeny/webdav-client-python-3)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ezhov-evgeny_webdav-client-python-3&metric=alert_status)](https://sonarcloud.io/dashboard?id=ezhov-evgeny_webdav-client-python-3)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ezhov-evgeny_webdav-client-python-3&metric=coverage)](https://sonarcloud.io/dashboard?id=ezhov-evgeny_webdav-client-python-3)
-[![PyPI](https://img.shields.io/pypi/v/webdavclient3)](https://pypi.org/project/webdavclient3/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/webdavclient3)  
+[![pypi](https://img.shields.io/pypi/v/aiowebdav.svg)](https://pypi.org/project/aiowebdav/)
+![python](https://img.shields.io/pypi/pyversions/aiowebdav)
+![implementation](https://img.shields.io/pypi/implementation/aiowebdav)
+![wheel](https://img.shields.io/pypi/wheel/aiowebdav)
+![action](https://img.shields.io/github/workflow/status/synodriver/aiowebdav/upload/aiowebdav)
 
 Package aiowebdav based on https://github.com/designerror/webdav-client-python but uses `aiohttp` instead of `requests`.
 It provides easy way to work with WebDAV-servers.
