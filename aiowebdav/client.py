@@ -240,7 +240,7 @@ class Client(object):
         if response.status == 405:
             raise MethodNotSupported(name=action, server=self.webdav.hostname)
         if response.status >= 400:
-            raise ResponseErrorCode(url=self.get_url(path), code=response.status, message=response.content)
+            raise ResponseErrorCode(url=self.get_url(path), code=response.status, message=await response.read())
         return response
 
     def valid(self):
