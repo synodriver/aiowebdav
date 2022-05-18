@@ -38,8 +38,7 @@ def _get_terminal_size_windows():
         from ctypes import windll, create_string_buffer
         h = windll.kernel32.GetStdHandle(-12)
         csbi = create_string_buffer(22)
-        res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
-        if res:
+        if res := windll.kernel32.GetConsoleScreenBufferInfo(h, csbi):
             (bufx, bufy, curx, cury, wattr, left, top, right, bottom, maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
             sizex = right - left + 1
             sizey = bottom - top + 1
@@ -125,7 +124,7 @@ class ProgressBar:
         available_width = width - 2
         current = int(self.precise * available_width / 100)
         available_width -= current + 1
-        tip = ">" if not self.precise == 100 else ""
+        tip = ">" if self.precise != 100 else ""
         progress = "{arrow}{tip}{space}".format(arrow="=" * current, tip=tip, space=" " * available_width)
         return "[{progress}]".format(progress=progress)
 
@@ -137,9 +136,8 @@ class ProgressBar:
         precise = int(float(current) * 100 / total)
         if self.precise == precise:
             return
-        else:
-            self.precise = precise
-            self.show()
+        self.precise = precise
+        self.show()
 
 setting_keys = ['webdav_hostname', 'webdav_root', 'webdav_login', 'webdav_password', 'webdav_token',
                 'proxy_hostname', 'proxy_login', 'proxy_password',
@@ -150,23 +148,20 @@ crypto_keys = ['webdav_password', 'webdav_token', 'proxy_password']
 
 def encoding(source):
 
-    if not source:
-        return ""
-    return b64encode(source.encode('utf-8'))
+    return b64encode(source.encode('utf-8')) if source else ""
 
 
 def decoding(source):
 
-    if not source:
-        return ""
-    return b64decode(source).decode('utf-8')
+    return b64decode(source).decode('utf-8') if source else ""
 
 
 def import_options():
 
-    options = dict()
-    for setting_key in setting_keys:
-        options[setting_key] = os.environ.get(setting_key.upper())
+    options = {
+        setting_key: os.environ.get(setting_key.upper())
+        for setting_key in setting_keys
+    }
 
     for crypto_key in crypto_keys:
         if not options[crypto_key]:
@@ -193,10 +188,7 @@ def valid(options):
 class Formatter(argparse.RawTextHelpFormatter):
 
     def _get_default_metavar_for_optional(self, action):
-        if not action.option_strings:
-            return action.dest
-        else:
-            return ""
+        return "" if action.option_strings else action.dest
 
     def _format_action_invocation(self, action):
         if not action.option_strings:
@@ -212,10 +204,8 @@ class Formatter(argparse.RawTextHelpFormatter):
             else:
                 default = self._get_default_metavar_for_optional(action)
                 args_string = self._format_args(action, default)
-                for option_string in action.option_strings:
-                    parts.append(option_string)
-
-                return '%s %s' % (', '.join(parts), args_string)
+                parts.extend(iter(action.option_strings))
+                return f"{', '.join(parts)} {args_string}"
 
             return ', '.join(parts)
 
@@ -226,10 +216,7 @@ class Formatter(argparse.RawTextHelpFormatter):
             result = default_metavar
 
         def format(tuple_size):
-            if isinstance(result, tuple):
-                return result
-            else:
-                return (result, ) * tuple_size
+            return result if isinstance(result, tuple) else (result, ) * tuple_size
         return format
 
 
@@ -246,11 +233,10 @@ def urn_completer(prefix, **kwargs):
         prefix_urn = Urn(prefix)
         if prefix_urn.is_dir():
             return (prefix+filename for filename in client.list(prefix_urn.path()))
-        else:
-            parent = prefix_urn.parent()
-            prefix_filename = prefix_urn.filename()
-            prefix_filename_length = len(prefix_filename)
-            return (prefix + filename[prefix_filename_length:] for filename in client.list(parent) if filename.startswith(prefix_filename))
+        parent = prefix_urn.parent()
+        prefix_filename = prefix_urn.filename()
+        prefix_filename_length = len(prefix_filename)
+        return (prefix + filename[prefix_filename_length:] for filename in client.list(parent) if filename.startswith(prefix_filename))
     except WebDavException:
         pass
 

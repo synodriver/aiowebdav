@@ -59,9 +59,20 @@ class ClientTestCase(BaseClientTestCase):
     def test_check_does_not_exist(self):
         self._prepare_for_downloading(inner_dir=True)
         self.assertFalse(self.client.check('wrong'), 'Expected that the directory is not exist')
-        self.assertFalse(self.client.check(self.remote_path_dir + '/wrong'), 'Expected that the inner directory is not exist')
-        self.assertFalse(self.client.check(self.remote_path_dir + '/wrong.txt'), 'Expected that the file is not exist')
-        self.assertFalse(self.client.check(self.remote_inner_path_dir + '/wrong.txt'), 'Expected that the inner file is not exist')
+        self.assertFalse(
+            self.client.check(f'{self.remote_path_dir}/wrong'),
+            'Expected that the inner directory is not exist',
+        )
+
+        self.assertFalse(
+            self.client.check(f'{self.remote_path_dir}/wrong.txt'),
+            'Expected that the file is not exist',
+        )
+
+        self.assertFalse(
+            self.client.check(f'{self.remote_inner_path_dir}/wrong.txt'),
+            'Expected that the inner file is not exist',
+        )
 
     def test_check_another_client(self):
         self._prepare_for_uploading()
@@ -279,43 +290,55 @@ class ClientTestCase(BaseClientTestCase):
         init_modification_time = int(self._prepare_local_test_file_and_get_modification_time())
         sleep(1)
         self._prepare_for_downloading(base_path='time/')
-        result = self.client.pull('time/' + self.remote_path_dir, self.local_path_dir)
+        result = self.client.pull(f'time/{self.remote_path_dir}', self.local_path_dir)
         update_modification_time = int(os.path.getmtime(self.pulled_file))
         self.assertTrue(result)
         self.assertGreater(update_modification_time, init_modification_time)
-        self.client.clean(remote_path='time/' + self.remote_path_dir)
+        self.client.clean(remote_path=f'time/{self.remote_path_dir}')
 
     def test_pull_older(self):
         self._prepare_for_downloading(base_path='time/')
         sleep(1)
         init_modification_time = int(self._prepare_local_test_file_and_get_modification_time())
-        result = self.client.pull('time/' + self.remote_path_dir, self.local_path_dir)
+        result = self.client.pull(f'time/{self.remote_path_dir}', self.local_path_dir)
         update_modification_time = int(os.path.getmtime(self.pulled_file))
         self.assertFalse(result)
         self.assertEqual(update_modification_time, init_modification_time)
-        self.client.clean(remote_path='time/' + self.remote_path_dir)
+        self.client.clean(remote_path=f'time/{self.remote_path_dir}')
 
     def test_push_newer(self):
         self._prepare_for_downloading(base_path='time/')
         sleep(1)
         self._prepare_for_uploading()
-        init_modification_time = self.client.info('time/' + self.remote_path_file)['modified']
-        result = self.client.push('time/' + self.remote_path_dir, self.local_path_dir)
-        update_modification_time = self.client.info('time/' + self.remote_path_file)['modified']
+        init_modification_time = self.client.info(f'time/{self.remote_path_file}')[
+            'modified'
+        ]
+
+        result = self.client.push(f'time/{self.remote_path_dir}', self.local_path_dir)
+        update_modification_time = self.client.info(
+            f'time/{self.remote_path_file}'
+        )['modified']
+
         self.assertTrue(result)
         self.assertNotEqual(init_modification_time, update_modification_time)
-        self.client.clean(remote_path='time/' + self.remote_path_dir)
+        self.client.clean(remote_path=f'time/{self.remote_path_dir}')
 
     def test_push_older(self):
         self._prepare_for_uploading()
         sleep(1)
         self._prepare_for_downloading(base_path='time/')
-        init_modification_time = self.client.info('time/' + self.remote_path_file)['modified']
-        result = self.client.push('time/' + self.remote_path_dir, self.local_path_dir)
-        update_modification_time = self.client.info('time/' + self.remote_path_file)['modified']
+        init_modification_time = self.client.info(f'time/{self.remote_path_file}')[
+            'modified'
+        ]
+
+        result = self.client.push(f'time/{self.remote_path_dir}', self.local_path_dir)
+        update_modification_time = self.client.info(
+            f'time/{self.remote_path_file}'
+        )['modified']
+
         self.assertFalse(result)
         self.assertEqual(init_modification_time, update_modification_time)
-        self.client.clean(remote_path='time/' + self.remote_path_dir)
+        self.client.clean(remote_path=f'time/{self.remote_path_dir}')
 
     def _prepare_local_test_file_and_get_modification_time(self):
         if not path.exists(path=self.local_path_dir):

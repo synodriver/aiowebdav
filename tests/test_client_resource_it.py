@@ -29,7 +29,7 @@ class ResourceTestCase(BaseClientTestCase):
         self._prepare_for_downloading()
         resource = Resource(self.client, Urn(self.remote_path_file))
         resource.rename('new_name.text')
-        self.assertTrue(self.client.check(self.remote_path_dir + '/new_name.text'))
+        self.assertTrue(self.client.check(f'{self.remote_path_dir}/new_name.text'))
 
     def test_move(self):
         self._prepare_for_downloading()

@@ -51,14 +51,14 @@ class WebDAVSettings(ConnectionSettings):
 
         for key in self.keys:
             value = options.get(key, '')
-            if not (self.__dict__[key] and not value):
+            if not self.__dict__[key] or value:
                 self.options[key] = value
                 self.__dict__[key] = value
 
         self.root = Urn(self.root).quote() if self.root else ''
         self.root = self.root.rstrip(Urn.separate)
         self.hostname = self.hostname.rstrip(Urn.separate)
-        self.ssl = None if not self.ssl else self.ssl
+        self.ssl = self.ssl or None
         if isinstance(self.timeout, (int, float)):
             self.timeout = aiohttp.ClientTimeout(self.timeout)
 

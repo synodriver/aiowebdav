@@ -4,6 +4,8 @@ import unittest
 from tests.test_client_it import ClientTestCase
 
 
+
+
 class MultiClientTestCase(ClientTestCase):
     remote_path_file = 'директория/тестовый.txt'
     remote_path_file2 = 'директория/тестовый2.txt'
@@ -15,9 +17,10 @@ class MultiClientTestCase(ClientTestCase):
     inner_dir_name = 'вложенная'
     local_base_dir = 'tests/'
     local_file = 'тестовый.txt'
-    local_file_path = local_base_dir + 'тестовый.txt'
-    local_path_dir = local_base_dir + 'res/директория'
+    local_file_path = f'{local_base_dir}тестовый.txt'
+    local_path_dir = f'{local_base_dir}res/директория'
     pulled_file = local_path_dir + os.sep + local_file
+
 
 
 if __name__ == '__main__':

@@ -19,8 +19,14 @@ class ClientTestCase(TestCase):
         content = read_file_content('./tests/responses/get_list.xml')
         result = Utils.parse_get_list_response(content)
         self.assertEqual(result.__len__(), 2)
-        self.assertTrue(result[0].is_dir(), '{} should be marked as directory'.format(result[0].path()))
-        self.assertFalse(result[1].is_dir(), '{} should be marked as file'.format(result[1].path()))
+        self.assertTrue(
+            result[0].is_dir(), f'{result[0].path()} should be marked as directory'
+        )
+
+        self.assertFalse(
+            result[1].is_dir(), f'{result[1].path()} should be marked as file'
+        )
+
         self.assertEqual(result[1].__str__(), '/test_dir/test.txt')
 
     def test_parse_get_list_info_response(self):
@@ -51,7 +57,7 @@ class ClientTestCase(TestCase):
         result = Utils.parse_get_list_response(content)
         self.assertEqual(result.__len__(), 5)
         for d in result:
-            self.assertTrue(d.is_dir(), '{} should be marked as directory'.format(d.path()))
+            self.assertTrue(d.is_dir(), f'{d.path()} should be marked as directory')
 
     def test_create_free_space_request_content(self):
         result = Utils.create_free_space_request_content()

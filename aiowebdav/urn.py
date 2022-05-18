@@ -37,10 +37,11 @@ class Urn(object):
         nesting_level = self.nesting_level()
         parent_path_split = path_split[:nesting_level]
         parent = self.separate.join(parent_path_split) if nesting_level != 1 else Urn.separate
-        if not parent.endswith(Urn.separate):
-            return unquote(parent + Urn.separate)
-        else:
-            return unquote(parent)
+        return (
+            unquote(parent)
+            if parent.endswith(Urn.separate)
+            else unquote(parent + Urn.separate)
+        )
 
     def nesting_level(self):
         return self._path.count(Urn.separate, 0, -1)
