@@ -551,7 +551,8 @@ class Client(object):
             await self.upload_directory(local_path=local_path, remote_path=remote_path, progress=progress,
                                         progress_args=progress_args)
         else:
-            await self.upload_file(local_path=local_path, remote_path=remote_path, progress_args=progress_args)
+            await self.upload_file(local_path=local_path, remote_path=remote_path, progress=progress, progress_args=progress_args)
+
 
     async def upload_directory(self, remote_path, local_path, progress=None, progress_args=()):
         """Uploads directory to remote path on WebDAV server.
@@ -578,8 +579,8 @@ class Client(object):
         if not os.path.exists(local_path):
             raise LocalResourceNotFound(local_path)
 
-        if await self.check(urn.path()):
-            await self.clean(urn.path())
+        # if await self.check(urn.path()):
+        #     await self.clean(urn.path()) fixme: may delete root
 
         await self.mkdir(remote_path)
 
@@ -846,7 +847,7 @@ class Client(object):
                     continue
                 await self.upload_file(remote_path=remote_path, local_path=local_path)
                 updated = True
-            return updated
+        return updated
 
     async def pull(self, remote_directory, local_directory):
         def prune(src, exp):
