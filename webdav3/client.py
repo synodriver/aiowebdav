@@ -28,7 +28,7 @@ def listdir(directory):
     :param directory: absolute or relative path to local directory
     :return: list nested of file or directory names
     """
-    file_names = list()
+    file_names = []
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
         if os.path.isdir(file_path):
@@ -45,7 +45,7 @@ def get_options(option_type, from_options):
     :return: the dictionary of options for specified type, each option can be filled by value from all options
              dictionary or blank in case the option for specified type is not exist in all options dictionary
     """
-    _options = dict()
+    _options = {}
 
     for key in option_type.keys:
         key_with_prefix = "{prefix}{key}".format(prefix=option_type.prefix, key=key)
@@ -170,7 +170,7 @@ class Client(object):
             except AttributeError:
                 headers = self.http_header[action][:]
         else:
-            headers = list()
+            headers = []
 
         if headers_ext:
             headers.extend(headers_ext)
@@ -239,7 +239,7 @@ class Client(object):
 
         :return: True in case settings are valid and False otherwise.
         """
-        return True if self.webdav.valid() else False
+        return bool(self.webdav.valid())
 
     @wrap_connection_error
     def list(self, remote_path=root, get_info=False):
@@ -850,11 +850,7 @@ class Client(object):
         :param timeout: the timeout for the lock (default infinite).
         :return: LockClient that wraps the Client and handle the lock
         """
-        headers_ext = None
-        if timeout > 0:
-            headers_ext = [
-                "Timeout: Second-%d" % timeout
-            ]
+        headers_ext = ["Timeout: Second-%d" % timeout] if timeout > 0 else None
 
         response = self.execute_request(
             action='lock', path=Urn(remote_path).quote(), headers_ext=headers_ext,
@@ -1076,7 +1072,7 @@ class WebDavXmlUtils:
                 if href_el is None:
                     continue
                 path = unquote(urlsplit(href_el.text).path)
-                info = dict()
+                info = {}
                 is_dir = len(response.findall(".//{DAV:}collection")) > 0
                 info = WebDavXmlUtils.get_info_from_response(response)
                 info['isdir'] = is_dir
@@ -1161,10 +1157,10 @@ class WebDavXmlUtils:
             'etag': ".//{DAV:}getetag",
             'content_type': ".//{DAV:}getcontenttype",
         }
-        info = dict()
-        for (name, value) in find_attributes.items():
-            info[name] = response.findtext(value)
-        return info
+        return {
+            name: response.findtext(value)
+            for name, value in find_attributes.items()
+        }
 
     @staticmethod
     def parse_info_response(content, path, hostname):
@@ -1199,7 +1195,7 @@ class WebDavXmlUtils:
             raise MethodNotSupported(name="is_dir", server=hostname)
         dir_type = resource_type.find("{DAV:}collection")
 
-        return True if dir_type is not None else False
+        return dir_type is not None
 
     @staticmethod
     def create_get_property_request_content(option):
@@ -1299,7 +1295,7 @@ class LockClient(Client):
     def get_headers(self, action, headers_ext=None):
         headers = super().get_headers(action, headers_ext)
         headers["Lock-Token"] = self.__lock_token
-        headers["If"] = "(%s)" % self.__lock_token
+        headers["If"] = f"({self.__lock_token})"
         return headers
 
     def __enter__(self):
