@@ -28,7 +28,7 @@ def listdir(directory):
     :param directory: absolute or relative path to local directory
     :return: list nested of file or directory names
     """
-    file_names = list()
+    file_names = []
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
         if os.path.isdir(file_path):
@@ -170,7 +170,7 @@ class Client(object):
             except AttributeError:
                 headers = self.http_header[action][:]
         else:
-            headers = list()
+            headers = []
 
         if headers_ext:
             headers.extend(headers_ext)
@@ -239,7 +239,7 @@ class Client(object):
 
         :return: True in case settings are valid and False otherwise.
         """
-        return True if self.webdav.valid() else False
+        return bool(self.webdav.valid())
 
     @wrap_connection_error
     def list(self, remote_path=root, get_info=False, recursive=False):
@@ -261,9 +261,7 @@ class Client(object):
                  `path`: path of resource.
 
         """
-        headers = []
-        if recursive == True:
-            headers = ["Depth:infinity"]
+        headers = ["Depth:infinity"] if recursive == True else []
         directory_urn = Urn(remote_path, directory=True)
         if directory_urn.path() != Client.root and not self.check(directory_urn.path()):
             raise RemoteResourceNotFound(directory_urn.path())
@@ -306,9 +304,7 @@ class Client(object):
         except RemoteResourceNotFound:
             return False
 
-        if int(response.status_code) == 200:
-            return True
-        return False
+        return int(response.status_code) == 200
 
     @wrap_connection_error
     def mkdir(self, remote_path, recursive=False):
@@ -861,12 +857,7 @@ class Client(object):
         :param timeout: the timeout for the lock (default infinite).
         :return: LockClient that wraps the Client and handle the lock
         """
-        headers_ext = None
-        if timeout > 0:
-            headers_ext = [
-                "Timeout: Second-%d" % timeout
-            ]
-
+        headers_ext = ["Timeout: Second-%d" % timeout] if timeout > 0 else None
         response = self.execute_request(
             action='lock', path=Urn(remote_path).quote(), headers_ext=headers_ext,
             data="""<D:lockinfo xmlns:D='DAV:'><D:lockscope><D:exclusive/></D:lockscope><D:locktype><D:write/></D:locktype></D:lockinfo>""")
@@ -1095,7 +1086,7 @@ class WebDavXmlUtils:
                 infos.append(info)
             return infos
         except etree.XMLSyntaxError:
-            return list()
+            return []
 
     @staticmethod
     def parse_get_list_response(content):
@@ -1116,7 +1107,7 @@ class WebDavXmlUtils:
                 urns.append(Urn(href, is_dir))
             return urns
         except etree.XMLSyntaxError:
-            return list()
+            return []
 
     @staticmethod
     def create_free_space_request_content():
@@ -1210,7 +1201,7 @@ class WebDavXmlUtils:
             raise MethodNotSupported(name="is_dir", server=hostname)
         dir_type = resource_type.find("{DAV:}collection")
 
-        return True if dir_type is not None else False
+        return dir_type is not None
 
     @staticmethod
     def create_get_property_request_content(option):
@@ -1310,7 +1301,7 @@ class LockClient(Client):
     def get_headers(self, action, headers_ext=None):
         headers = super().get_headers(action, headers_ext)
         headers["Lock-Token"] = self.__lock_token
-        headers["If"] = "(%s)" % self.__lock_token
+        headers["If"] = f"({self.__lock_token})"
         return headers
 
     def __enter__(self):
