@@ -32,7 +32,7 @@ options = {
 async def main():
     client = Client(options)
     client.verify = False  # To not check SSL certificates (Default = True)
-    client.execute_request("mkdir", 'directory_name')
+    await client.execute_request("mkdir", 'directory_name')
 asyncio.run(main())
 ```
 
